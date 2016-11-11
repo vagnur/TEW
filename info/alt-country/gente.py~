@@ -1,0 +1,10 @@
+entrada = open('people','r')
+salida = open('normal','w')
+
+for linea in entrada:
+	linea = linea.strip()
+	if linea != '':
+		salida.write(linea+'\n')
+
+entrada.close()
+salida.close()

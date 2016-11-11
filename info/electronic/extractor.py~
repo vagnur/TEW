@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+import urlparse
+from selenium import webdriver
+from bs4 import BeautifulSoup
+
+browser = webdriver.Chrome()
+#Se encuenta la cantidad máxima de páginas que tiene el genero
+browser.get('http://www.metacritic.com/browse/albums/genre/date/electronic')
+page_source = BeautifulSoup(browser.page_source,'lxml')
+page_max = page_source.find_all('a',class_='page_num')
+page_number = 1
+for data in page_max:
+	page_number = int(data.get_text())
+#Se encuentran los links a cada álbum
+for i in range(page_number):
+	browser.get('http://www.metacritic.com/browse/albums/genre/date/alternative?page='+str(i))
+	page_source = BeautifulSoup(browser.page_source,'lxml')
+	albums = page_source.find_all('li',class_='product')
+	for source in albums:
+		for link in source.find_all('a'):
+			browser.get('http://www.metacritic.com'+link.get('href'))
+			#Se accede al álbum
+			page_source=BeautifulSoup(browser.page_source,'lxml')
+			#Se accede a los comentarios de los críticos ### SOLO SE SACAN LOS MEJORES 100
+			browser.get('http://www.metacritic.com'+link.get('href')+'/critic-reviews')
+			page_source=BeautifulSoup(browser.page_source,'lxml')
+			comments_section = page_source.find('ol',class_='reviews critic_reviews')
+			try:
+				for source in comments_section.find_all('div',class_='review_content'):
+					autor = source.find('div',class_='review_critic')
+					autor = source.find('div',class_='source')
+					autor = autor.get_text().strip()
+					with open('users','a') as expert:
+						expert.write(autor+'\n')
+			except:
+				print 'No hay datos'
+browser.close()

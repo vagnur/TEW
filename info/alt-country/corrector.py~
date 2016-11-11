@@ -1,0 +1,12 @@
+entrada = open('users','r')
+salida = open('usuarios','w')
+usuarios = []
+
+for linea in entrada:
+	linea = linea.strip()
+	if linea not in usuarios:
+		salida.write(linea)
+		usuarios.append(linea)
+
+entrada.close()
+salida.close()

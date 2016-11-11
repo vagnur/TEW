@@ -1,0 +1,16 @@
+comentarios = open('experts','r')
+usuarios = open('users','r')
+salida = open('expertos','w')
+
+for linea in comentarios:
+	linea = linea.strip()
+	if linea=='':
+		salida.write('\n')
+	else:
+		usuario = usuarios.readline()
+		usuario = usuario.strip()
+		salida.write(usuario+','+linea+'\n')
+
+
+comentarios.close()
+usuarios.close()
