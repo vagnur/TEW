@@ -1,7 +1,6 @@
 package tew;
 
 import com.opencsv.CSVReader;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,7 +27,7 @@ import org.apache.lucene.store.FSDirectory;
 public class Index {
     
     public static void crearIndice() throws IOException{
-        Directory dir = FSDirectory.open(Paths.get("indice/"));
+        Directory dir = FSDirectory.open(Paths.get("index/"));
         Analyzer analyzer = new StandardAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
@@ -72,7 +71,7 @@ public class Index {
     }
     
     public static void buscarIndice() throws IOException, ParseException{
-        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("indice/")));
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("index/")));
         IndexSearcher searcher = new IndexSearcher(reader);
         Analyzer analyzer = new StandardAnalyzer();
         
