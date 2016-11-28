@@ -16,6 +16,8 @@ public class Tew {
         //Index.buscarIndice();
         SentClassifier sent = new SentClassifier(new File("classifier/sent.classifier"));
         UsageClassifier usage = new UsageClassifier(new File("classifier/usage.classifier"));
+        Graph graph = new Graph();
+        graph.getWeight();
     }
     
 }
