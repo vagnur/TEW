@@ -9,11 +9,10 @@ import org.apache.lucene.queryparser.classic.ParseException;
 
 public class Tew {
     public static void main(String[] args) throws IOException, ParseException, FileNotFoundException, ClassNotFoundException {
-        Index.rankingNormal2016();
         if(Files.notExists(Paths.get("index/"))){
             Index.crearIndice();
         }
-        //Index.buscarIndice();
+        Index.buscarIndice("job");
         SentClassifier sent = new SentClassifier(new File("classifier/sent.classifier"));
         UsageClassifier usage = new UsageClassifier(new File("classifier/usage.classifier"));
         Graph graph = new Graph();
