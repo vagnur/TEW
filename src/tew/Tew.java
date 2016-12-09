@@ -29,10 +29,8 @@ public class Tew {
         while((current=br.readLine())!=null){
             estilos.add(current.trim());
         }
-        
-        /*
-        System.out.println(Index.rankNormal("job", 1000, "rock", sent));
-        System.out.println(Index.rankExperto("job", 1000, "rock", sent, graph));
+        float distancias[][] = new float[estilos.size()][estilos.size()];
+        float tamanos[] = new float[estilos.size()];
         for (int i = 0;i<estilos.size();i++){
             for(int j=0;j<estilos.size();j++){
                 if (i!=j){
@@ -45,15 +43,23 @@ public class Tew {
                     BufferedReader tags2 = new BufferedReader(new FileReader("info/"+estilos.get(j).toString()+"/tags"));
                     while((bolsa=tags2.readLine())!=null)
                         query = query + bolsa + " ";
-                    System.out.println("Distancia entre "+estilos.get(i).toString()+" y "+estilos.get(j).toString()+": "+Index.calculoDistancia(query, documentos, estilos.get(i).toString(), estilos.get(j).toString()));
+                    distancias[i][j] = Index.calculoDistancia(query, documentos, estilos.get(i).toString(), estilos.get(j).toString());
                 }
             }
         }
-        /*
-        Index.calculoDistancia("job",100);
-        SentClassifier sent = new SentClassifier(new File("classifier/sent.classifier"));
-        UsageClassifier usage = new UsageClassifier(new File("classifier/usage.classifier"));
-        */
+        
+        for (int i = 0;i<estilos.size();i++){
+            String bolsa = null;
+            String query = "";
+            BufferedReader tags = new BufferedReader(new FileReader("info/"+estilos.get(i).toString()+"/tags"));
+            while((bolsa=tags.readLine())!=null)
+                query = query + bolsa + " ";
+            tamanos[i] = (float) (0.8*Index.rankNormal(query, documentos, estilos.get(i).toString(), sent,mayor,menor)+0.2*Index.rankExperto(query, documentos, estilos.get(i).toString(), sent, graph,mayor,menor));
+        }
+        
+        //EJEMPLO DE EVOLUCIÓN DEL ROCK DURANTE LOS AÑOS
+        float rock[] = Index.rankAnios(documentos*10, "rock", sent, graph, mayor, menor);
+        
     }
     
 }
