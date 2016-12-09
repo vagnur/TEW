@@ -87,8 +87,6 @@ public class Index {
             Document doc = searcher.doc(hits[i].doc);
             if(doc.get("estilo").equals(estilo1) || doc.get("estilo").equals(estilo2))
                 coincidencias ++;
-            //System.out.println((i+1)+".- autor="+doc.get("experto")+" nota="+doc.get("nota experto")+" estilo="+doc.get("estilo")+" fecha="+doc.get("fecha"));
-            //System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario experto"));
         }
         
         QueryParser parserN = new QueryParser("comentario normal", analyzer);
@@ -102,11 +100,100 @@ public class Index {
             if(doc.get("estilo").equals(estilo1) || doc.get("estilo").equals(estilo2)){
                 coincidencias ++;
             }
-            //System.out.println((i+1)+".- nota normal="+doc.get("nota normal")+" likes/reacciones"+doc.get("likes")+"/"+doc.get("reacciones")+" fecha="+doc.get("fecha")+" estilo="+doc.get("estilo"));
-            //System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario normal"));
         }
         
         return coincidencias/(float)cantidad;
+    }
+    
+    public static float rankNormal(String termino, int cantidad, String estilo, SentClassifier sent) throws IOException, ParseException{
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("index/")));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        Analyzer analyzer = new StandardAnalyzer();
+        
+        QueryParser parser = new QueryParser("comentario normal", analyzer);
+        Query query = parser.parse(termino);
+        
+        TopDocs results = searcher.search(query,cantidad);
+        ScoreDoc[] hits = results.scoreDocs;
+        
+        int maxreac = 0;
+        
+        float puntaje = 0;
+        
+        for (int i=0;i<hits.length;i++){
+            Document doc = searcher.doc(hits[i].doc);
+            if(doc.get("estilo").equals(estilo)){
+                if(maxreac<Integer.parseInt(doc.get("reacciones").toString()))
+                    maxreac = Integer.parseInt(doc.get("reacciones").toString());
+            }
+        }
+        
+        int maxnota = 0;
+        
+        for (int i=0;i<hits.length;i++){
+            Document doc = searcher.doc(hits[i].doc);
+            if(doc.get("estilo").equals(estilo)){
+                if(maxnota<Integer.parseInt(doc.get("nota normal").toString()))
+                    maxnota = Integer.parseInt(doc.get("nota normal").toString());
+            }
+        }
+        
+        int total = 0;
+        
+        for (int i=0;i<hits.length;i++){
+            Document doc = searcher.doc(hits[i].doc);
+            if(doc.get("estilo").equals(estilo)){
+                total++;
+                sent.getLabelings(doc.get("comentario normal"));
+                if(sent.positivo>sent.negativo && sent.positivo>sent.neutral) 
+                    puntaje = (float) (puntaje + (0.3*(sent.positivo)+0.3*Integer.parseInt(doc.get("nota normal").toString())/maxnota)+0.4*(Integer.parseInt(doc.get("likes").toString())/maxreac));
+                if(sent.negativo>sent.positivo && sent.negativo>sent.neutral)
+                    puntaje = (float) (puntaje + (0.3*(sent.negativo/4)+0.3*Integer.parseInt(doc.get("nota normal").toString())/maxnota)+0.4*(Integer.parseInt(doc.get("likes").toString())/maxreac));
+                if(sent.neutral>sent.positivo && sent.neutral>sent.negativo)
+                    puntaje = (float) (puntaje + (0.3*(sent.neutral/2)+0.3*Integer.parseInt(doc.get("nota normal").toString())/maxnota)+0.4*(Integer.parseInt(doc.get("likes").toString())/maxreac));
+            }
+        }
+        
+        return puntaje/total;
+        
+    }
+    
+    public static float rankExperto(String termino, int cantidad, String estilo, SentClassifier sent, Graph graph) throws IOException, ParseException{
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("index/")));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        Analyzer analyzer = new StandardAnalyzer();
+        
+        QueryParser parser = new QueryParser("comentario experto", analyzer);
+        Query query = parser.parse(termino);
+        
+        TopDocs results = searcher.search(query,cantidad);
+        ScoreDoc[] hits = results.scoreDocs;
+        
+        float puntaje = 0;
+        
+        int maxnota = 0;
+        
+        for (int i=0;i<hits.length;i++){
+            Document doc = searcher.doc(hits[i].doc);
+            if(doc.get("estilo").equals(estilo)){
+                if(maxnota<Integer.parseInt(doc.get("nota experto").toString()))
+                    maxnota = Integer.parseInt(doc.get("nota experto").toString());
+            }
+        }
+        
+        int total = 0;
+        
+        for (int i=0;i<hits.length;i++){
+            Document doc = searcher.doc(hits[i].doc);
+            if(doc.get("estilo").equals(estilo)){
+                total++;
+                sent.getLabelings(doc.get("comentario experto"));
+               puntaje = puntaje + (float)(0.3*((sent.positivo/2)+(sent.neutral/4)+(sent.negativo/8))+0.2*Integer.parseInt(doc.get("nota experto").toString())/maxnota+0.5*graph.weights.get(doc.get("experto")));
+            }
+        }
+        
+        return puntaje/total;
+    
     }
     
 }

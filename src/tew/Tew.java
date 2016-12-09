@@ -21,12 +21,18 @@ public class Tew {
         }
         Graph graph = new Graph();
         graph.getWeight(mayor,menor);
+        SentClassifier sent = new SentClassifier(new File("classifier/sent.classifier"));
+        UsageClassifier usage = new UsageClassifier(new File("classifier/usage.classifier"));
         List estilos = new ArrayList();
         BufferedReader br = new BufferedReader(new FileReader("graph/estilos.dat"));
         String current = null;
         while((current=br.readLine())!=null){
             estilos.add(current.trim());
         }
+        
+        /*
+        System.out.println(Index.rankNormal("job", 1000, "rock", sent));
+        System.out.println(Index.rankExperto("job", 1000, "rock", sent, graph));
         for (int i = 0;i<estilos.size();i++){
             for(int j=0;j<estilos.size();j++){
                 if (i!=j){
