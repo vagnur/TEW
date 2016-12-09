@@ -19,7 +19,7 @@ public class Graph {
     }
     
     
-    public void getWeight() throws FileNotFoundException, IOException{
+    public void getWeight(int alto, int bajo) throws FileNotFoundException, IOException{
     
         Driver driver = GraphDatabase.driver( "bolt://localhost", AuthTokens.basic( "neo4j", "admin" ) );
         Session session = driver.session();
@@ -43,10 +43,11 @@ public class Graph {
         br2.close();
         
         for(int i = 0;i<estilos.size();i++){
-            StatementResult result = session.run("match (u:User)-[r:Comments]->(s:Style) where s.name = '"+estilos.get(i)+"' return r, u.name as name");
+            StatementResult result = session.run("match (u:User)-[r:Comments]->(s:Style) where s.name = '"+estilos.get(i)+"' return r.alta as alto, r.bajo as bajo, u.name as name");
             while(result.hasNext()){
                 Record record = result.next();
-                users.add(record.get("name").asString().trim());
+                if (alto<=Integer.parseInt(record.get("alto").asString()) && bajo>=Integer.parseInt(record.get("bajo").asString()))
+                    users.add(record.get("name").asString().trim());
             }
         }
         

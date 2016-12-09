@@ -71,40 +71,42 @@ public class Index {
         writer.close();
     }
     
-    public static void buscarIndice(String termino) throws IOException, ParseException{
+    public static float calculoDistancia(String termino, int cantidad,String estilo1,String estilo2) throws IOException, ParseException{
+        float coincidencias = 0;
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("index/")));
         IndexSearcher searcher = new IndexSearcher(reader);
         Analyzer analyzer = new StandardAnalyzer();
         
         QueryParser parser = new QueryParser("comentario experto", analyzer);
         Query query = parser.parse(termino);
-        //mallet tiene un jar que puede clasificar los comentarios -> buscar Api para integrarlo con java
-        //pasar todas las palabras de la bolsa de palabras -> para comparar dos tópicos
-        //investigar set para evaluar la intersección 
         
-        //bolsa de palabras -> tópicos definidos 
-        TopDocs results = searcher.search(query,10);
+        TopDocs results = searcher.search(query,cantidad);
         ScoreDoc[] hits = results.scoreDocs;
         
         for (int i=0;i<hits.length;i++){
             Document doc = searcher.doc(hits[i].doc);
-            System.out.println((i+1)+".- autor="+doc.get("experto")+" nota="+doc.get("nota experto")+" estilo="+doc.get("estilo")+" fecha="+doc.get("fecha"));
-            System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario experto"));
+            if(doc.get("estilo").equals(estilo1) || doc.get("estilo").equals(estilo2))
+                coincidencias ++;
+            //System.out.println((i+1)+".- autor="+doc.get("experto")+" nota="+doc.get("nota experto")+" estilo="+doc.get("estilo")+" fecha="+doc.get("fecha"));
+            //System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario experto"));
         }
         
-        System.out.println("\n");
-        
         QueryParser parserN = new QueryParser("comentario normal", analyzer);
-        Query queryN = parserN.parse("job");
+        Query queryN = parserN.parse(termino);
         
-        results = searcher.search(queryN,10);
+        results = searcher.search(queryN,cantidad);
         hits = results.scoreDocs;
         
         for (int i=0;i<hits.length;i++){
             Document doc = searcher.doc(hits[i].doc);
-            System.out.println((i+1)+".- nota normal="+doc.get("nota normal")+" likes/reacciones"+doc.get("likes")+"/"+doc.get("reacciones")+" fecha="+doc.get("fecha")+" estilo="+doc.get("estilo"));
-            System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario normal"));
+            if(doc.get("estilo").equals(estilo1) || doc.get("estilo").equals(estilo2)){
+                coincidencias ++;
+            }
+            //System.out.println((i+1)+".- nota normal="+doc.get("nota normal")+" likes/reacciones"+doc.get("likes")+"/"+doc.get("reacciones")+" fecha="+doc.get("fecha")+" estilo="+doc.get("estilo"));
+            //System.out.println((i+1)+".- score="+hits[i].score+" doc="+hits[i].doc+" comentario="+doc.get("comentario normal"));
         }
+        
+        return coincidencias/(float)cantidad;
     }
-   
+    
 }
