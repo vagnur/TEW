@@ -1,0 +1,211 @@
+<!doctype html>
+
+<html>
+    <head>
+		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	    <script src="nouislider.js"></script>
+	    <script src="nouislider.min.js"></script>
+	    <script src="wNumb.js"></script>
+
+	    <link rel="stylesheet" type="text/css" href="nouislider.css">
+	    <link rel="stylesheet" type="text/css" href="nouislider.min.css">
+	    <link rel="stylesheet" type="text/css" href="nouislider.pips.css">
+	    <link rel="stylesheet" type="text/css" href="nouislider.tooltips.css">
+		
+		<script>
+
+
+			
+				//force.nodes(data.nodes)
+				//.links(data.links)
+
+		    	$(document).ready(function(){
+
+		        var bigValueSlider = document.getElementById('slider-huge'),
+		          bigValueSpan = document.getElementById('huge-value');
+
+		        noUiSlider.create(bigValueSlider, {
+		          start: 0,
+		          step: 1,
+		          format: wNumb({
+		            decimals: 0
+		          }),
+		          range: {
+		            min: 0,
+		            max: 2
+		          }
+		        });
+
+		        // Note how these are 'string' values, not numbers.
+		        var range = [
+					'0','1',
+					'2'
+				];
+
+				console.log(range);
+
+				bigValueSlider.noUiSlider.on('update', function ( values, handle ) {
+					bigValueSpan.innerHTML = range[values[handle]];
+						force.linkDistance(function(links) {return links.value[values]})
+					    // Get the animation rolling
+					    var node = svg.selectAll(".node")
+				      		.attr("r", function(d){return d.r[values];})
+				      		.style("fill",function(d){return heatScale(d.heat[values])});
+
+				      	force.start();
+				});
+
+			});
+		    
+		    	
+
+		    </script>
+
+
+
+	    <style type="text/css">
+		    .links{
+		      stroke: #777;
+		      stroke-width: 0px;
+		    }
+	   </style>   
+    </head>
+    <body>
+    	<div style="padding-left: 50px;">
+
+				<div style="width:900px;" id="slider-huge" class="noUi-target noUi-ltr noUi-horizontal">
+			    </div>
+				
+				<br>
+
+				<span class="example-val" id="huge-value">0</span>
+			</div>
+		<script>
+
+		var width = 960,
+		    height = 600;
+
+		    var color = d3.scale.category20();
+		    var animationStep = 400;
+		    	    
+
+		    var force = d3.layout.force()
+		        .size([width, height]);
+
+		    var svg = d3.select("body")
+		        .append("svg")
+		        .attr("width", width)
+		        .attr("height", height); 
+
+		    var heatScale = d3.scale.linear()
+		    				.domain([0,100])
+		    				.range(['yellow','red']);
+
+
+			d3.json("prueba.json",function(error,data){
+						if(error) throw error;
+						
+			force
+		      .nodes(data.nodes)
+		      .links(data.links)
+		      .on("tick", tick)         //para ir a la función tick para "dibujar" el grafo      
+		      .linkDistance(function(links) {return links.value[0] })    //para calcular la distancia entre los nodos
+		      .start();
+
+
+
+		    
+		    				
+		    
+		           
+
+		    var link = svg.selectAll(".links")
+		      .data(data.links)
+		      .enter().append("line")
+		      .attr("class", "links")
+		    
+
+
+		    var node = svg.selectAll(".node")
+		      .data(data.nodes)
+		      .enter().append("circle")
+		      .attr("class", "node")
+		      .attr("r", function(d){return d.r[0];})
+		      .style("fill",function(d){return heatScale(d.heat[0])});
+		      
+
+
+		    var text = svg.selectAll(".text")
+		      .data(data.nodes)
+		      .enter().append("text")
+		      .text(function(d){return d.name;})
+		      .attr("fill","black");
+
+		    function tick(){
+		      link.attr("x1", function(d){return d.source.x})
+		          .attr("y1", function(d){return d.source.y})
+		          .attr("x2", function(d){return d.target.x})
+		          .attr("y2", function(d){return d.target.y});
+
+		      node.attr("cx", function(d){return d.x;})
+		          .attr("cy", function(d){return d.y;})
+		          .call(force.drag); //para que al presionar un nodo con el cursor se muevan
+
+
+		      text.attr("x", function(d){return d.x;})
+		          .attr("y", function(d){return d.y;});
+		    }
+
+		    d3.select('#play').on('click', function() {
+			    // Indicate that the full speed operation is in progress.
+			    force.linkDistance(function(links) {return links.value[0]})
+			    // Get the animation rolling
+			    var node = svg.selectAll(".node")
+		      		.attr("r", function(d){return d.r[0];})
+		      		.style("fill",function(d){return heatScale(d.heat[0])});
+
+		      	force.start();
+
+			});
+
+		    d3.select('#play1').on('click', function() {
+			    // Indicate that the full speed operation is in progress.
+			    force.linkDistance(function(links) {return links.value[1]})
+			    // Get the animation rolling
+			    
+			    var node = svg.selectAll(".node")
+		      		.attr("r", function(d){return d.r[1];})
+			      	.style("fill",function(d){return heatScale(d.heat[1])});
+
+		      	force.start();
+
+			
+			});
+
+		    d3.select('#play2').on('click', function() {
+			    // Indicate that the full speed operation is in progress.
+			    force.linkDistance(function(links) {return links.value[2]})
+			    // Get the animation rolling
+			    var node = svg.selectAll(".node")
+		      		.attr("r", function(d){return d.r[2];})
+	                .style("fill",function(d){return heatScale(d.heat[2])});
+		      	force.start();
+
+			});
+					});
+
+//console.log(json);
+
+			//dimensiones de la pantalla
+		    
+
+		</script>
+
+			
+
+    </body>
+</html>

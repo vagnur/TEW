@@ -1,0 +1,27 @@
+{
+	"pelotas":	[ "a", "b", "c", "d"],
+	"valores":	[
+					{
+						"fecha":"1",
+						"distancias":[ [0,0,0],[320,0,0],[130,230,0] ],
+						"temperaturas":[5, 6, 13],
+						"diametro":[ 12, 23, 21]
+					},
+
+					{
+						"fecha":"2",
+						"distancias":[ [0,0,0],[100,0,0],[500,150,0] ],
+						"temperaturas":[10, 5, 1],
+						"diametro":[ 22, 13, 31]
+					},
+
+					{
+						"fecha":"3",
+						"distancias":[ [0,0,0],[50,0,0],[90,310,0] ],
+						"temperaturas":[5, 15, 21],
+						"diametro":[ 31, 13, 5]
+					}
+
+				]
+
+}
